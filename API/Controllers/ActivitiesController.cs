@@ -23,14 +23,15 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")] //api/activities/id
-        public async Task<ActionResult<Activity>> GetActivity ( Guid id){
-            return await Mediator.Send(new Details.Query{Id = id});
+        public async Task<IActionResult> GetActivity ( Guid id){
+            return HandlerResult( await Mediator.Send(new Details.Query{Id = id}));
+            
         }
-     
+      
         [HttpPost]
         public async Task<IActionResult> CreatActivity(Activity activity){
-            await Mediator.Send(new Create.Command {Activity = activity} );
-            return Ok();
+            
+            return HandlerResult(await Mediator.Send(new Create.Command {Activity = activity} ));
         }
      
         [HttpPut("{id}")]
