@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Domain;
+using FluentValidation;
 using MediatR;
 using Persistence;
 using SQLitePCL;
@@ -12,6 +13,16 @@ public class Create
     public class Command : IRequest{
         public Activity Activity {get; set;}
     }
+
+
+
+        public class CommandValidator : AbstractValidator<Activity>
+        {
+            public CommandValidator()
+            {
+                RuleFor(x => x.Title).NotEmpty();
+            }
+        }
         public class Hendler : IRequestHandler<Command>
         {
            public readonly DataContext _context;
