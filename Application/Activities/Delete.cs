@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.Core;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -6,13 +7,14 @@ namespace Application;
 
 public class Delete
 {
-    public class Command : IRequest{
+    public class Command : IRequest<Result<Unit>>
+    {
 
         public Guid Id { get; set; }
     }
 
 
-    public class Handler : IRequestHandler<Command>
+    public class Handler : IRequestHandler<Command, Result<Unit>>
     {
         private readonly DataContext _context;
         public Handler(DataContext context)
@@ -20,12 +22,16 @@ public class Delete
             _context = context;
         }
 
-        public async Task Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
             var activity = await _context.Activities.FindAsync(request.Id);
+            if(activity == null) return null;
 
             _context.Remove(activity);
-            await _context.SaveChangesAsync();
+           var result =  await _context.SaveChangesAsync() > 0;
+
+           if(!result) return Result<Unit>.Failure("Fail to delete");
+           return Result<Unit>.Succes(Unit.Value);
 
         }
     }
